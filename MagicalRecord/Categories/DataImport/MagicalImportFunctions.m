@@ -11,6 +11,8 @@
 
 #pragma mark - Data import helper functions
 
+static NSMutableDictionary<NSString*,NSDateFormatter*> *k_dateFormatters = nil;
+
 NSString * MR_attributeNameFromString(NSString *value)
 {
     NSString *firstCharacter = [[value substringToIndex:1] capitalizedString];
@@ -31,13 +33,28 @@ NSDate * MR_adjustDateForDST(NSDate *date)
     return actualDate;
 }
 
+NSDateFormatter *MR_dateFormatterWithFormat(NSString *format);
+NSDateFormatter *MR_dateFormatterWithFormat(NSString *format)
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        k_dateFormatters = [NSMutableDictionary new];
+    });
+    
+    NSDateFormatter *formatter = k_dateFormatters[format];
+    if (!formatter) {
+        formatter = [[NSDateFormatter alloc] init];
+        [formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+        [formatter setLocale:[NSLocale currentLocale]];
+        [formatter setDateFormat:format];
+    }
+    
+    return formatter;
+}
+
 NSDate * MR_dateFromString(NSString *value, NSString *format)
 {
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-    [formatter setLocale:[NSLocale currentLocale]];
-    [formatter setDateFormat:format];
-    
+    NSDateFormatter *formatter = MR_dateFormatterWithFormat(format);
     NSDate *parsedDate = [formatter dateFromString:value];
     
     return parsedDate;
