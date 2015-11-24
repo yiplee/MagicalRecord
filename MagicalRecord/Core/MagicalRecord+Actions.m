@@ -9,6 +9,8 @@
 #import "NSManagedObjectContext+MagicalRecord.h"
 #import "NSManagedObjectContext+MagicalThreading.h"
 
+static NSOperationQueue *k_syncSaveQueue;
+
 @implementation MagicalRecord (Actions)
 
 #pragma mark - Asynchronous saving
@@ -32,6 +34,37 @@
 
         [localContext MR_saveWithOptions:MRSaveParentContexts completion:completion];
     }];
+}
+
++ (NSOperationQueue *) syncSaveQueue
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        k_syncSaveQueue = [NSOperationQueue new];
+        k_syncSaveQueue.maxConcurrentOperationCount = 1;
+        k_syncSaveQueue.qualityOfService = NSOperationQualityOfServiceUtility;
+    });
+    
+    return k_syncSaveQueue;
+}
+
++ (void) saveSyncWithBlock:(void(^)(NSManagedObjectContext *localContext))block completion:(MRSaveCompletionHandler)completion
+{
+    [[self syncSaveQueue] addOperationWithBlock:^{
+        [self saveWithBlockAndWait:block];
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(YES,nil);
+            });
+        }
+    }];
+}
+
++ (void) cancelAllSyncSaveTasks
+{
+    if (k_syncSaveQueue) {
+        [k_syncSaveQueue cancelAllOperations];
+    }
 }
 
 #pragma mark - Synchronous saving
