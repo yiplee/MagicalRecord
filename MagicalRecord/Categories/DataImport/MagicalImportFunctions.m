@@ -46,6 +46,7 @@ NSDateFormatter *MR_dateFormatterWithFormat(NSString *format)
         [formatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
         [formatter setLocale:[NSLocale currentLocale]];
         [formatter setDateFormat:format];
+        k_dateFormatters[format] = formatter;
     }
     
     return formatter;
