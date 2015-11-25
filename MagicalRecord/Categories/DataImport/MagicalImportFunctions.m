@@ -33,7 +33,6 @@ NSDate * MR_adjustDateForDST(NSDate *date)
     return actualDate;
 }
 
-NSDateFormatter *MR_dateFormatterWithFormat(NSString *format);
 NSDateFormatter *MR_dateFormatterWithFormat(NSString *format)
 {
     static dispatch_once_t onceToken;
