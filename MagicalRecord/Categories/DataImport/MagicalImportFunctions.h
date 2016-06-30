@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <MagicalRecord/MagicalRecordXcode7CompatibilityMacros.h>
 
-NSDateFormatter * __MR_nonnull MR_dateFormatterWithFormat(NSString *format);
+NSDateFormatter * __MR_nonnull MR_dateFormatterWithFormat(NSString *__MR_nonnull format);
 NSDate * __MR_nonnull MR_adjustDateForDST(NSDate *__MR_nonnull date);
 NSDate * __MR_nonnull MR_dateFromString(NSString *__MR_nonnull value, NSString *__MR_nonnull format);
 NSDate * __MR_nonnull MR_dateFromNumber(NSNumber *__MR_nonnull value, BOOL milliseconds);
